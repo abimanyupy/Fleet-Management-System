@@ -45,27 +45,6 @@ div<!-- resources/views/admin/truck/partials/truckInfo/edit.blade.php -->
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                         required>
                 </div>
-                {{-- <div class="mb-4">
-                    <label for="expired_date" class="block text-sm font-medium text-gray-700">Expired Date</label>
-                    <input type="date" name="expired_date" id="expired_date" value="{{  $trucks->expired_date }}"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    required>
-                </div> --}}
-                {{-- @dd($trucks->created_date) --}}
-                <!-- Expired Date (Read-only, akan dihitung otomatis) -->
-                <div class="form-group">
-                    <label for="expired_date">Expired Date</label>
-                    <input type="date" name="expired_date" id="expired_date" class="form-control"
-                        value="{{ $trucks->expired_date }}" readonly>
-                </div>
-
-                <!-- License Status (Read-only, akan dihitung otomatis) -->
-                <div class="form-group">
-                    <label for="license_status">License Status</label>
-                    <input type="text" name="license_status" id="license_status" class="form-control"
-                        value="{{ $trucks->license_status }}" readonly>
-                </div>
-
                 <div class="mt-6 flex space-x-4">
                     <button type="submit"
                         class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">

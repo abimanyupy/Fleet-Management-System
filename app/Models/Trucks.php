@@ -18,10 +18,7 @@ class Trucks extends Model
     protected $fillable = [
         'number_plate',
         'truck_capacity',
-        // 'hauling_max_speed',
-        // 'empty_max_speed',
         'fuel_capacity',
-        // 'fuel_consumption',
         'license_number',
         'created_date',
         'expired_date',

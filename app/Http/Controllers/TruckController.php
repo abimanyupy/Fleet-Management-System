@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\Trucks;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class TruckController extends Controller
@@ -75,8 +76,6 @@ class TruckController extends Controller
             'fuel_capacity' => 'required|numeric',
             'license_number' => "required|numeric|unique:trucks,license_number,$id",
             'created_date' => 'required|date',
-            'expired_date' => 'required|date',
-            'license_status' => 'required|in:active,need an update,expired',
         ]);
 
         if ($validator->fails()) {
@@ -84,12 +83,9 @@ class TruckController extends Controller
         }
 
         $createdDate = Carbon::parse($request->created_date);
-
         $expiredDate = $createdDate->copy()->addDays(30);
-        $request->merge(['expired_date' => $expiredDate->toDateString()]);
 
         $now = Carbon::now()->startOfDay();
-
         $diffDate = $now->diffInDays($expiredDate->startOfDay());
 
         if ($now->gt($expiredDate)) {
@@ -117,7 +113,41 @@ class TruckController extends Controller
                          ->with('success', 'Truck berhasil dihapus.');
     }
 
+    public function checkLicenseExpiration()
+    {
+        $now = Carbon::now();
+        $warningDate = $now->copy()->addDays(7);
 
+        // Ambil truk dengan lisensi yang akan segera kedaluwarsa atau sudah kedaluwarsa
+        $trucks = Trucks::where('expired_date', '<=', $warningDate)
+                        ->orderBy('expired_date', 'asc')
+                        ->get();
+
+        $updatedTrucks = 0;
+
+        foreach ($trucks as $truck) {
+            // Perbarui status lisensi berdasarkan tanggal kedaluwarsa
+            if ($now->gt($truck->expired_date)) {
+                $licenseStatus = 'expired';
+            } elseif ($now->diffInDays($truck->expired_date) <= 7) {
+                $licenseStatus = 'need an update';
+            } else {
+                $licenseStatus = 'active';
+            }
+
+            // Update status lisensi truk
+            $truck->update([
+                'license_status' => $licenseStatus,
+            ]);
+
+            $updatedTrucks++;
+            Log::info("Truk {$truck->id} dengan nomor plat {$truck->number_plate} diperbarui status lisensinya menjadi {$licenseStatus}.");
+        }
+
+        return response()->json([
+            'message' => "{$updatedTrucks} truk diperbarui status lisensinya."
+        ]);
+    }
 
 
 }

@@ -6,6 +6,7 @@ use App\Models\TruckService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
+use App\Http\Controllers\TruckController;
 use App\Http\Controllers\TruckServiceController;
 
 Artisan::command('inspire', function () {
@@ -17,3 +18,9 @@ Artisan::command('inspire', function () {
 Schedule::call(function () {
     app(TruckServiceController::class)->checkUpcomingService();
 })->daily();
+
+
+Schedule::call(function () {{
+    app(TruckController::class)->checkLicenseExpiration();
+}})->daily();
+

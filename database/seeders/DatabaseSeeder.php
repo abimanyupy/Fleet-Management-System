@@ -189,7 +189,7 @@ class DatabaseSeeder extends Seeder
                     'truck_id' => $dataTrucks[array_rand($dataTrucks)]['id'],
                     'hauling_route_id' => $dataHaulingRouter[array_rand($dataHaulingRouter)]['id'],
                     'assignment_date' => $faker->dateTimeBetween('-1 month', 'now'),
-                    'deparature_time' => $departureTime,
+                    // 'deparature_time' => $departureTime,
                     'arrival_time' => $arrivalTime,
                     'cycle_time' => $cycleTime,
                     'assignment_status' => $faker->randomElement(['ON PROGRESS', 'COMPLETE', 'PENDING']),

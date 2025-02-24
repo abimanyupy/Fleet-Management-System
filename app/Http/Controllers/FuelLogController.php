@@ -33,8 +33,19 @@ class FuelLogController extends Controller
 
     public function create()
     {
-        $trucks = Trucks::orderBy('number_plate', 'asc')->get();
-        $drivers = Drivers::orderBy('name', 'asc')->get();
+        $trucks = Trucks::orderBy('number_plate', 'asc')
+                ->where('license_status', 'ACTIVE')
+                ->where(function ($query) {
+                    $query->whereHas('truck_services', function ($q) {
+                        $q->where('service_status', 'READY');
+                    })
+                    ->orWhereDoesntHave('truck_services'); // Truk yang belum pernah memiliki riwayat service
+                })
+                ->get();
+
+        $drivers = Drivers::orderBy('name', 'asc')
+        ->where('driver_status', 'ACTIVE')
+        ->get();
         return view('admin.fuelLogs.create', ['trucks' => $trucks, 'drivers' => $drivers]);
     }
 

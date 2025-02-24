@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignUuid('truck_id')->constrained('trucks');
             $table->foreignUuid('hauling_route_id')->constrained('hauling_routes');
             $table->date('assignment_date');
-            $table->time('deparature_time');
             $table->time('arrival_time')->nullable();
             $table->integer('cycle_time')->nullable();
             $table->enum('assignment_status',['ON PROGRESS', 'COMPLETE', 'PENDING'])->default('ON PROGRESS'); // ON PROGRESS, COMPLETE, CANCEL

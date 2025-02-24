@@ -101,13 +101,13 @@
                                     {{ $truckAssignment->driver->phone }}
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-500 w-60 max-w-60 ">
-                                    {{ $truckAssignment->deparature_time }}
+                                    {{ $truckAssignment->created_at->format('H:i:s') }}
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-500 w-60 max-w-60 ">
                                     {{ $truckAssignment->arrival_time }}
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-500 w-60 max-w-60 ">
-                                    {{ $truckAssignment->cycle_time }}
+                                    {{ $truckAssignment->cycle_time }} menit
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span

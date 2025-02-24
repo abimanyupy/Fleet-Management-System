@@ -16,4 +16,4 @@ Artisan::command('inspire', function () {
 
 Schedule::call(function () {
     app(TruckServiceController::class)->checkUpcomingService();
-})->everyMinute();
+})->daily();

@@ -31,7 +31,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 });
 
-// Route::group([ 'middleware' => ['auth']], function () {
+Route::group([ 'middleware' => ['auth']], function () {
     Route::resource('drivers', DriversController::class);
     Route::resource('trucks', TruckController::class);
     Route::resource('truck-service', TruckServiceController::class);
@@ -41,4 +41,4 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('truck-assignment', TruckAssignmentsController::class);
     Route::resource('hauling-route', HaulingRoutesController::class);
     Route::resource('hauling-route-weather', HaulingRouteWeatherController::class);
-// });
+});

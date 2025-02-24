@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\Trucks;
 use App\Models\Drivers;
+use App\Models\TruckService;
 use Illuminate\Http\Request;
 use App\Models\HaulingRoutes;
 use App\Models\TruckAssignments;
@@ -33,11 +34,26 @@ class TruckAssignmentsController extends Controller
 
     public function create()
     {
-        $trucks = Trucks::orderBy('number_plate', 'asc')->get();
-        $drivers = Drivers::orderBy('name', 'asc')->get();
+        $trucks = Trucks::orderBy('number_plate', 'asc')
+                ->where('license_status', 'ACTIVE')
+                ->where(function ($query) {
+                    $query->whereHas('truck_services', function ($q) {
+                        $q->where('service_status', 'READY');
+                    })
+                    ->orWhereDoesntHave('truck_services'); // Truk yang belum pernah memiliki riwayat service
+                })
+                ->get();
+
+        $drivers = Drivers::orderBy('name', 'asc')
+        ->where('driver_status', 'ACTIVE')
+        ->get();
         $haullingRoutes = HaulingRoutes::orderBy('route_name', 'asc')->get();
 
-        return view('admin.truckAssignment.create', ['trucks' => $trucks, 'drivers' => $drivers, 'haullingRoutes' => $haullingRoutes]);
+        return view('admin.truckAssignment.create', [
+            'trucks' => $trucks,
+            'drivers' => $drivers,
+            'haullingRoutes' => $haullingRoutes
+        ]);
     }
 
     public function store(Request $request)
@@ -54,11 +70,6 @@ class TruckAssignmentsController extends Controller
         }
         $data = $request->all();
         $data['assignment_date'] = now();
-        $data['deparature_time'] = now();
-        // $departureTime = Carbon::createFromFormat('H:i:s', $request->departure_time);
-        // $arrivalTime = $departureTime->copy()->addMinutes(rand(10, 180));
-        // $request->merge(['arrival_time' => $arrivalTime->format('H:i:s')]);
-        // dd($data);
 
         $truckAssignment = TruckAssignments::create($data);
 
@@ -82,21 +93,36 @@ class TruckAssignmentsController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-
         $truckAssignment = TruckAssignments::findOrFail($id);
+
+        if ($truckAssignment->assignment_status === 'COMPLETE') {
+            return redirect()->route('truck-assignment.index')
+                            ->with('error', 'Tidak dapat memperbarui data karena assignment sudah selesai (COMPLETE).');
+        }
 
 
         $arrivalTime = now();
-        $departureTime = Carbon::parse($truckAssignment->departure_time);
-        $cycleTime = $departureTime->diffInMinutes($arrivalTime);
+        $cycleTime = $truckAssignment->created_at->diffInMinutes($arrivalTime);
 
         // Update data
         $truckAssignment->update([
             'arrival_time' => $arrivalTime,
             'cycle_time' => $cycleTime,
-            'notes' => $request->notes, // Update notes jika ada
+            'assignment_status' => 'COMPLETE',
+            'notes' => $request->notes,
         ]);
 
+        if ($truckAssignment->notes !== null) {
+            TruckService::create([
+                'truck_id' => $truckAssignment->truck_id,
+                'service_description' => $truckAssignment->notes,
+                'service_status' => 'NEED REPAIR',
+                'is_serviced' => false,
+                'start_service_date' => null,
+                'finish_service_date' => null,
+                'next_service_date' => null
+            ]);
+        }
 
         // Redirect ke halaman index dengan pesan sukses
         return redirect()->route('truck-assignment.index')
